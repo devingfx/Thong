@@ -9,7 +9,7 @@ Second the templating rules have been exported into a rules array to let develop
 
 ## Usage
 
-`var greet = tmpl("Some text and <%=thing%>!");
+`var greet = tmpl("Some text and <%=thing%>!");<br/>
 myDiv.innerHTML = greet({thing: 'that\'s it'});`
 
 
