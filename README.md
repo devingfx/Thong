@@ -20,13 +20,65 @@ Simply add to the `tmpl.rules` Array a hash with 's' (search) and 'r' (replace) 
 	var rule = {s:<RegExp>, r:<string or function>};
 	tmpl.rules.push(rule);
 
+A rule consist in a RegExp that will be used in a String.replace to replace by the replace value.
+The replace string will be part of the final function code, so you are in a middle of 
+a javacript string declaration named 'o' ex : `var o = "<result of template here>"; return o;`
+So imagine your template is `"Doctor @who@ ?"` the function code without any replacement
+will be: `var o = "Doctor @who@ !"; return o;`
+Now we want the code to access some variable after our rule is replaced.
+ex: the js code will be: `var o = "Doctor " + (who) + " !"; return o;`
+
 Exemple: Find a var tag of form 'text @varname@ text' and replace by the value.
 
 	{
 		s: /@(.*?)@/g , 	// Search char '@' then capture everything until another '@' (don't forget the global modifier /./g)
 		r: '" + ($1) + "'	// The replace string will be part of the final function code, so you are in a middle of 
-	}
-							// a javacript string declaration named 'o' ex : var o = "<result of template here>"; return o;
+	}						// a javacript string declaration named 'o' ex : var o = "<result of template here>"; return o;
 							// So imagine your template is "Doctor @who@ ?" the function code without any replacement
 							// will be: var o = "Doctor @who@ !"; return o;
 							// Now after our rule is replaced the js code will be: var o = "Doctor " + (who) + " !"; return o;
+
+A more complex ex now! 
+Imagine a conditional block of form 'text @IF::expression@ Some text @STOP::IF text' ,
+we need 2 rules: 1 for opening tag and one for the closing.
+				{	
+					s: /@IF::(.*?)@/g , 		// Search chars '@IF::' then capture everything until another '@'
+					r: '"; if( $1 ) { o+="'		// Here the code without replacement will be: var o = "text @IF::expression@ Some text @STOP::IF text"; return o;
+				}	
+				 								// and with the replacement: var o = "text "; if(expression) { o+=" Some text @STOP::IF text"; return o;
+				 								// buggy cause we need the close tag rule:
+				{
+					s: /@STOP::IF/g , 			// Search chars '@STOP::IF'
+					r: '"; } o+="'				// Here the final code is: var o = "text "; if(expression) { o+=" Some text "; } o+=" text"; return o;
+				}
+
+			Unescaping:
+				A common use case is to first create a rules to escape " double quote char to be able to paste a quote in the resulting code
+				otherwise the quote should close the string declaration in js code: 
+				Ex: '<div class="item">foo</div>' >> var o = "<div class="item">foo</div>"; return o;
+				Here the quotes surrounding "item" breaks the js string declaration
+				So after escape no more problems : var o = "<div class=\"item\">foo</div>"; return o;
+				
+				The problem is that escaping all the template's quotes will also escape the one in js parts that rules will use ex:
+				{	s: /"/g ,	r: '\\"'	},			// Escape all "
+				{
+					s: /\{\{if(.*?)\}\}/g , 			// Search chars '{{if' then capture everything until '}}' are found
+					r: '"; if( $1 ) { o+="'				// Replace by if statement with 1st capture
+				}
+				'<div class="item">{{if bar == "foo"}}foo{{/if}}</div>' >>> var o = "<div class=\"item\">"; if( bar == \"foo\" ) { o+="foo"; } o+="</div>"; return o;
+				Here our js code will break because of escaped quotes surrounding foo: bar == \"foo\" 
+				You should instead use here a function replacement to first unescape the quotes in captured string before concatenate it to the final js code like:
+				{
+					s: /\{\{if(.*?)\}\}/g , 					// Search chars '{{if' then capture everything until '}}' are found
+					r: function(found, $1, $2, ...)				// Normal String.replace signature: function(<part of string match all rexexp> , <1st capture> , <2nd capture>, etc ...)
+					{
+						var code = $1.replace(/\\"/g, '"');		// Replace '\"' by '"'
+						return '"; if( ' + code + ' ) { o+="';	// Return the good js code
+					}				
+				}
+				Quite ugly! It's why the tmpl.unescapeCode(<string>) static maethod exists ! It's doing the unescape for you before resolving the mask passed to it!
+				Ex:
+				{
+					s: /\{\{if(.*?)\}\}/g , 						// Search chars '{{if' then capture everything until '}}' are found
+					r: tmpl.unescapeCode('"; if( $1 ) { o+="')		// $1 is unescaped to be js code!!
+				}
