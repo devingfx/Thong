@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:jx="jx" xmlns:mx="mx" xmlns:local="*">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>tmpl.js - Test page</title>
+		
+		<script type="text/javascript" src="micro.js"></script>
+		<script type="text/javascript">
+		
+		// lang object
+		var globalLang = {};
+		globalLang['Name'] = {EN: "Name", FR: "Nom"};
+		//<:L("Name")/>
+
+
+		var myObj = {
+			hello: "world",
+			stats:{
+				list: 4
+			},
+			aze:{
+				list: [
+					{name:"aze1", qsd:"qsd1"},
+					{name:"aze2", qsd:"qsd2"},
+					{name:"aze3", qsd:"qsd3"},
+					{name:"aze4", qsd:"qsd4"}
+				]
+			}
+		};
+		var myObj2 = {
+			stats:{
+				list: 10
+			},
+			aze:{
+				list: [
+					{name:"Title 1", qsd:"QSD 1"},
+					{name:"Title 2", qsd:"QSD 2"},
+					{name:"Title 3", qsd:"QSD 3"},
+					{name:"Title 4", qsd:"QSD 4"},
+					{name:"Title 5", qsd:"QSD 5"},
+					{name:"Title 6", qsd:"QSD 6"},
+					{name:"Title 7", qsd:"QSD 7"},
+					{name:"Title 8", qsd:"QSD 8"},
+					{name:"Title 9", qsd:"QSD 9"},
+					{name:"Title 10", qsd:"QSD 10"}
+				]
+			}
+		};
+
+
+
+		function format(txt)
+		{
+			return "["+txt+"]";
+		}
+		</script>
+
+		<style>
+		.Item {
+
+		}
+		</style>
+	</head>
+	<body>
+
+		<h1>Default style</h1>
+		
+		<script id="myNestedTemplate" type="text/javascript" src="./tmpl.js">
+			<div class="Item">
+				Name : <span><%=name%></span>
+				Qsd #ID : <span><%=qsd%></span>
+			</div>
+		</script>
+
+		<script id="myTemplate" type="text/javascript" src="./tmpl.js" data="myObj">
+			<% var created = {
+				state: true
+			} %>
+			<% if(typeof hello != "undefined"){ %>
+				<% if(hello=='world'){o+='***';} %>
+				coucou <%=format(hello)%>
+			<%}else{%>
+				Goodbye! <%if(typeof created !='undefined'){%><%=created.state%><%}%>
+			<%}%>
+			<% with( stats ) { %>
+				Number : <span><%=list%></span>(<% for(i=0; i<list; i++){%> <%=i%><%}%>)
+			<%}%>
+			<% i = 0; %>
+			<% for(;i<stats.list; i++){ %> <%=i%><%}%>
+			<%for(i=0,item; item=aze.list[i++];){%> <%=i%><%}%>
+			<%for(var n in aze.list){var item = aze.list[n]; %>
+				<%with (item){%>
+					<%=myNestedTemplate(item)%>
+				<%}%>
+			<%}%>
+		</script>
+		
+		<h1>&lt;js tag&gt; style</h1>
+		
+		<script id="L" type="text/javascript" src="./tmpl.js">
+			<with globalLang[data]>
+				<EN?> <span class="en-EN"> <:EN/> </span> </>
+				<FR?> <span class="fr-FR"> <:FR/> </span> </>
+				<SP?> <span class="sp-SP"> <:SP/> </span> </>
+				<DE?> <span class="de-DE"> <:DE/> </span> </>
+			</>
+		</script>
+
+		<script id="myNestedTemplate2" type="text/javascript" src="./tmpl.js">
+			<div class="Item">
+				<:L('Name')/> : <span><:name/></span>
+				Qsd #ID : <span><:qsd/></span>
+				<:img('img/icon.png')/>
+				<img src="img/icon.png"/>
+			</div>
+		</script>
+
+		<script id="img" type="text/javascript" src="./tmpl.js">
+			<img src="<:data/>"/>
+		</script>
+
+		<script id="myTemplate2" type="text/javascript" src="./tmpl.js" data="myObj">
+			<js 
+			this.aze=42;
+			>
+			<var created = {
+				state: true
+			}>
+			<div class="greetings">
+				<hello?>
+					<js if(hello=='world'){o+='***';}>
+					coucou <:format(hello)/>
+				<else>
+					Goodbye! <created?><:created.state/></>
+				</>
+			</div>
+			<with stats>
+				Number : <span><:list/></span>(<for i=0; i<list; i++> <:i/></>)
+			</with>
+			<js i = 0>
+			<js for(;i<stats.list; i++){> <:i/></>
+			<for i=0,item; item=aze.list[i++];> <:i/></for>
+			<foreach item in aze.list>
+				<with item>
+					<:myNestedTemplate2(item)/>
+				</with>
+			</foreach>
+		</script>
+		<aze/>
+
+		<div>
+			<span>aze</span>
+		</divv
+	</body>
+</html>
