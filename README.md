@@ -9,8 +9,16 @@ Second the templating rules have been exported into a rules array to let develop
 
 ## Usage
 
+Use tmpl to generate a templating function that take an Object as argument:
+
 	var greet = tmpl("Some text and <%=thing%>!");
 	myDiv.innerHTML = greet({thing: 'that\'s it'});
+
+The references in template tokens resolves to the properties of Object passed .
+
+You can also pass the Object directly to tmpl function as 2nd argument:
+
+	myDiv.innerHTML = tmpl("Some text and <%=thing%>!", {thing: 'that\'s it'});
 
 
 ## Add a templating rule
