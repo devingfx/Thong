@@ -1,4 +1,4 @@
-Simple JavaScript Templating for both nodejs and browsers - Thomas Di Grégorio - http://www.devingfx.com/ - derived from
+Simple JavaScript Templating for both nodejs and browsers - Thomas Di Grégorio - https://bitbucket.org/tdigregorio/tmpl/src - derived from
 Simple JavaScript Templating - John Resig - http://ejohn.org/ - MIT Licensed
 
 # tmpl - Simple templating
