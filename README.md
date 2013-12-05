@@ -49,17 +49,15 @@ we need 2 rules: 1 for opening tag and one for the closing one.
 
 Here the code without replacement will be: `var o = "lorem @IF::expression@ ipsum @STOP::IF dolor sit amet"; return o;`
 
-* The openning one:
+The openning one:
 
 	{	
 		s: /@IF::(.*?)@/g , 		// Search chars '@IF::' then capture everything until another '@'
 		r: '"; if( $1 ) { o+="'		// Replace by a javascript if
 	}
 
-and with this replacement: `var o = "lorem "; if(expression) { o+=" ipsum @STOP::IF dolor sit amet"; return o;`
-buggy cause we need,
-
-* the close tag rule:
+and with this first replacement: `var o = "lorem "; if(expression) { o+=" ipsum @STOP::IF dolor sit amet"; return o;`
+the code is buggy cause we need the close tag rule:
 
 	{
 		s: /@STOP::IF/g , 			// Search chars '@STOP::IF'
