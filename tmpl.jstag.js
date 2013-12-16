@@ -4,7 +4,7 @@
 if(typeof tmpl != 'undefined')
 {
 	// Add new rules
-	tmpl.rules = tmpl.rules.concat([
+	tmpl.rules['text/x-tmpl-jstag'] = [
 		// {s: /<script(.*?)<\/\sscript>/g, r: function(found){
 		// 	var id = tmpl._savedScripts.push(found);
 		// 	return '[script['+id+']]';
@@ -30,5 +30,5 @@ if(typeof tmpl != 'undefined')
 		// 	// console.log(found, $1, parseInt($1), tmpl._savedScripts, tmpl._savedScripts[parseInt($1)-1]);
 		// 	return tmpl._savedScripts[parseInt($1) - 1].replace();
 		// }}
-	]);
+	];
 }
