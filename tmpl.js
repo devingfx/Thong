@@ -11,7 +11,7 @@ if(typeof tmpl == 'undefined')
 			// Figure out if we're getting a template, or if we need to
 			// load the template - and be sure to cache the result.
 
-			var fn = (cache[ruleSetName] || {}) [str] = cache[ruleSetName][str] || 		// First try if we have a cached fn or
+			var fn = (cache[ruleSetName] = cache[ruleSetName] || {}) [str] = cache[ruleSetName][str] || 		// First try if we have a cached fn or
 					(fs && fs.existsSync(str) ? 										// try if we are in node env and file exists
 						tmpl(fs.readFileSync(str, 'utf-8')) 							// to load it
 						:																// or
@@ -49,15 +49,14 @@ if(typeof tmpl == 'undefined')
 			return str.replace(/\\"/g, '"');
 		};
 		
-		tmpl.rules = {};
-		tmpl.rules.defauts = [
-			{s/*earch*/: /\\/g, r/*eplace*/: '\\\\'},											// Escape '\' so that output string will still have char escaped (needed when processing js code string)
-			{s: /"/g, r: '\\"'},																// Escape '"' same has above
-			{s: /[\n]/g, r: '\\n'},																// Escape '\n' same has above
-			{s: /[\r]/g, r: '\\r'}																// Escape '\n' same has above
-			
-			/* You can add additional rules here ... */
-		];
+		tmpl.rules = {
+			defaults: [
+				{s/*earch*/: /\\/g, r/*eplace*/: '\\\\'},											// Escape '\' so that output string will still have char escaped (needed when processing js code string)
+				{s: /"/g, r: '\\"'},																// Escape '"' same has above
+				{s: /[\n]/g, r: '\\n'},																// Escape '\n' same has above
+				{s: /[\r]/g, r: '\\r'}																// Escape '\n' same has above
+			]
+		};
 	})(window || exports, document);
 }
 
@@ -65,8 +64,8 @@ if(typeof tmpl == 'undefined')
 
 /* TODO: Implement popular templating library support: EJS doT.js Handlerbar Mustache t.js ICANHAZ.JS */
 
-/* Handlebar.js *
-tmpl.rules['text/x-tmpl-handlebar'] = [
+/* Handlebar.js * 
+tmpl.rules['text/x-handlebars-template'] = [
 	{s: /\{\{(.*?)\}\}/g, r: '",$1,"'}			// Templating part: replace vars {{var}}
 	 ...
 ];
