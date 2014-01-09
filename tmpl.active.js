@@ -20,7 +20,29 @@ if(window && document) // avoid executing out of a browser
 {
 	(function(window, document)
 	{
-		
+		Object.defineProperty(Object.prototype, 'extendWithClass', {
+			enumerable:false,
+			value: function(o)
+			{
+				
+				if(typeof o == 'function')
+				{
+					for(var n in o.prototype)
+					{
+						//alert(n);
+						this[n] = o.prototype[n];
+						//alert(this.id);
+					}
+					o.call(this);
+				}
+				else if(typeof o == 'object')
+					for(var n in o)
+						this[n] = o[n];
+				
+				return this;
+			}
+		});
+
 		function ActiveTmpl(script)
 		{
 			if(this instanceof ActiveTmpl) // called with new
