@@ -15,6 +15,7 @@
  * 	or
  * 		document.getElementById('myTemplate').data = myDatas; // In browsers supporting getters/setters
  */
+
 if(window && document) // avoid executing out of a browser
 {
 	(function(window, document)
@@ -22,26 +23,42 @@ if(window && document) // avoid executing out of a browser
 		
 		function ActiveTmpl(script)
 		{
-			script= script || document.createElement('script');
+			if(this instanceof ActiveTmpl) // called with new
+			{
+				script = document.createElement('script');
+				for(var n in this)
+					script[n] = this[n];
+			}
+			script = this instanceof HTMLScriptElement ? this : script;
 			return script;
 		}
 		
+		
 		ActiveTmpl.prototype = {
+			_rendered: [],
 			initialize: function()
 			{
-				console.log('ActiveTmpl('+script+' ID:'+script.id+');');
-				script._rendered = [];
-				script.render = tmpl(script.innerHTML, script.type);
-				if(script.id != '')
-					window[script.id] = script.render;
+				var script = this;
+				//alert('ActiveTmpl('+this+' ID:'+this.id+');');
+				
+				this.render = tmpl(this.innerHTML, this.type);
+				if(this.id != '')
+					window[this.id] = this.render;
 				
 				
 				var _dataProvider;
-				Object.defineProperty(this,'dataProvider', {
+				Object.defineProperty(this,'data', {
 					set: function(v)
 					{
-						_dataProvider = v;
-						script.repeat(v);
+						if(typeof v != 'string')
+							try{
+								v = eval(v);
+							}catch(e){}
+						if(v)
+						{
+							_dataProvider = v;
+							script.repeat(_dataProvider);
+						}
 					},
 					get: function()
 					{
@@ -49,28 +66,20 @@ if(window && document) // avoid executing out of a browser
 					}
 				});
 				
-		
-				var _superSetAtt = script.setAttribute.bind(script);
-				script.setAttribute = function(name, v)
+				var _superSetAtt = this.setAttribute.bind(this);
+				this.setAttribute = function(name, v)
 				{
 					// console.log('setAttribute');
 					if(name == 'data')
 						script.data = v;
 					_superSetAtt.apply(script, arguments);
 				}
-				Object.defineProperty(this, 'data', {
-					set: function(v)
-					{
-						try{
-							script.innerHTML = script.render.call(script, typeof v == 'string' ? eval(v) : v);
-						}catch(e){}
-					}
-				});
+				
 		
-				if(script.getAttribute('data'))
-					script.data = script.getAttribute('data');
+				if(this.getAttribute('data') && this.getAttribute('data') != '')
+					this.data = this.getAttribute('data');
 			},
-			_eventAttribute = function(name, data, i)
+			_eventAttribute: function(name, data, i)
 			{
 				var event = new Event(name);
 				event.data = data;
@@ -80,6 +89,7 @@ if(window && document) // avoid executing out of a browser
 					eval('(function(){' + this.getAttribute(name) + '})').call(script, event);
 				}
 				this.dispatchEvent && this.dispatchEvent(event);
+				
 			},
 			appendChild: function(child)
 			{
@@ -96,12 +106,12 @@ if(window && document) // avoid executing out of a browser
 			repeat: function(data)
 			{
 				var div = document.createElement('div'); // needed to parse HTML strings
-				
-				this._eventAttribute('onBeforeRepeat', data);
-				
+
+				//this._eventAttribute('onBeforeRepeat', data);
 				if(!(this.hasAttribute('appends') && (this.getAttribute('appends') == '' || this.getAttribute('appends') == 'true')))
 				{
 					// this.innerHTML = "";
+					// alert(this._rendered);
 					this._rendered.forEach(function(item){item.parentNode.removeChild(item);})
 					this._rendered = [];
 				}
@@ -116,8 +126,7 @@ if(window && document) // avoid executing out of a browser
 						var childs = Array.prototype.slice.call(div.childNodes);
 						for(var ic = 0, child; child = childs[ic++];)
 							this.appendChild(child);
-						
-						this._eventAttribute('onRepeat', data, index);
+						//this._eventAttribute('onRepeat', data, index);
 					}
 				}
 				else
@@ -126,48 +135,49 @@ if(window && document) // avoid executing out of a browser
 					{
 						div.innerHTML = this.render(data[index]);
 						// The template can render several nodes
-						for(var ic = 0, child; child = div.childNodes[ic++];)
+						var childs = Array.prototype.slice.call(div.childNodes);
+						for(var ic = 0, child; child = childs[ic++];)
 							this.appendChild(child);
 						
-						this._eventAttribute('onRepeat', data, index);
+						//this._eventAttribute('onRepeat', data, index);
 					}
 				}
 				
-				this._eventAttribute('onRepeatEnd', data, index);
+				//this._eventAttribute('onRepeatEnd', data, index);
 				
 				return this;
 			}
 		};
+		//alert('4');
 		
-		
-		function activeTmpls(root)
+		function activateTmpls(root)
 		{
-			//console.log('ok')
+			//alert('ok')
 			
 			// Get the script tags
-			var ss = (root || document).getElementsByTagName('script');
-			//console.log(ss.length)
+			var ss = ((root instanceof Event ? false : root) || document).getElementsByTagName('script');
+			//alert(ss.length)
 			// var	s = ss[ss.length-1], dataAttr = s.getAttribute('data');
 			for(var i = 0, script; script = ss[i++];){
-				console.log(script.type);
+				//alert(script.type);
 			
 				if(tmpl.rules.hasOwnProperty(script.type) && script.innerHTML != '')
 				{
-					console.log("azzz"+(typeof script.mixin));
-					script.mixin(ActiveTmpl).initialize();
+					// alert("extendWithClass? "+(typeof script.extendWithClass));
+					script.extendWithClass(ActiveTmpl);
+					script.initialize();
 					
 				}
-				}
+			}
 		}
-		
-		window.addEventListener('DOMContentLoaded', activateTmpls);
-		
-		$(function()
+		// alert(document);
+		document.addEventListener('DOMContentLoaded', activateTmpls);
+		/*$(function()
 		{
-			console.log('ok');
+			alert('ok');
 			activeTmpls();
 		});
-		
+		*/
 		
 	})(window, document);
 
