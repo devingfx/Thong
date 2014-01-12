@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>QUnit Example</title>
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.12.0/qunit.min.css">
+<script src="../tmpl.js"></script>
+<script src="../tmpl.jresig.js"></script>
+<script src="../tmpl.php.js"></script>
+<script src="../tmpl.jstag.js"></script>
+<script src="../tmpl.tjs.js"></script>
+<script src="../tmpl.brackets.js"></script>
+<script src="../tmpl.active.js"></script>
+<script src="../tmpl.loader.js"></script>
+
+<link rel="stylesheet" href="./tests.css">
+</head>
+<body onload="DOMContentLoaded">
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.12.0/qunit.min.js"></script>
+
+
+<script id="TPL1" type="text/tmpl-with-id">Hello world!</script>
+<script id="TPL2" type="text/tmpl-with-id">Hello <%=who%><?=who?>!</script>
+
+
+
+<script id="itemTpl" type="text/x-tmpl-jresig" appends>
+	<div class="item"><%=name%></div>
+</script>
+
+
+<script type="text/x-tmpl-jstag">
+</script>
+
+
+<script id="xmlRenderer" type="text/x-tmpl-tjs">
+{{@data}}
+	{{typeof _val == 'object'}}
+		<{{=_key}}>{{=xmlRenderer(_val)}}</{{=_key}}>
+	{{:else}}
+		<{{=_key}}>{{=_val}}</{{=_key}}>
+	{{/if}}
+{{/@data}}
+</script>
+
+<!-- Loaded template + data binding + CSS based on filename: script[src$="menu.tpl"]{} -->
+<script src="./menu.tpl" data="menuData"></script>
+
+<div id="mouse" style="width:10px;height:10px;background:red;position:absolute;" top="{aze}px"></div>
+
+
+<script id="itemRenderer" style="display:block" src="../item.tpl" data="{label: 'Item 1', click:'alert(\'Hello !\')'}"></script>
+<script id="itemRenderer2" style="display:block" src="../item.tpl" data="[{label: 'Item 1', click:''},{label: 'Item 2', click:''},{label: 'Item 3', click:''},{label: 'Item 4', click:''}]"></script>
+
+<script type="text/javascript">
+
+var menuData = [
+	{
+		"header": "File",
+		"items": [
+			{"id": "Open"},
+			{"id": "OpenNew", "label": "Open New"},
+			{"id": "separator"},
+			
+			{"id": "SaveAs", "label": "Save As"},
+			{"id": "separator"},
+			
+			{"id": "Quit"}
+		]
+	},
+	{
+		"header": "SVG Viewer",
+		"items": [
+			{"id": "ZoomIn", "label": "Zoom In"},
+			{"id": "ZoomOut", "label": "Zoom Out"},
+			{"id": "OriginalView", "label": "Original View"},
+			{"id": "separator"},
+			
+			{"id": "Quality"},
+			{"id": "Pause"},
+			{"id": "Mute"},
+			{"id": "separator"},
+			
+			{"id": "Find", "label": "Find..."},
+			{"id": "FindAgain", "label": "Find Again"},
+			{"id": "Copy"},
+			{"id": "CopyAgain", "label": "Copy Again"},
+			{"id": "CopySVG", "label": "Copy SVG"},
+			{"id": "ViewSVG", "label": "View SVG"},
+			{"id": "ViewSource", "label": "View Source"},
+		]
+	},
+	{
+		"header": "Help",
+		"items": [
+			{"id": "Help"},
+			{"id": "About", "label": "About SVG Viewer..."}
+		]
+	}
+]
+function doMenuAction(action)
+{
+	alert('Menu clicked: ' + action);
+}
+
+test( "Good loading", function()
+{
+	ok( typeof tmpl != 'undefined', "tmpl exists!" );
+	ok( typeof tmpl.rules.defaults != 'undefined', "tmpl rules exists!" );
+	ok( typeof tmpl.rules['text/x-tmpl-jresig'] != 'undefined', "Rules from original function from J.Resig exists!" );
+	ok( typeof tmpl.rules['text/x-php-like'] != 'undefined', "Rules php like exists!" );
+	ok( typeof tmpl.rules['text/x-tmpl-jstag'] != 'undefined', "Rules jstag exists!" );
+	ok( typeof tmpl.rules['text/x-tmpl-tjs'] != 'undefined', "Rules tjs exists!" );
+});
+
+test( "Base templating", function()
+{
+	var aze;
+	ok( typeof tmpl('') == 'function', 
+		'tmpl("") > function' );
+	ok( typeof tmpl('')() == 'string', 
+		'tmpl("")() > string' );
+	ok( typeof tmpl('Some text') == 'function', 
+		'tmpl("Some text")() > function"' );
+	ok( typeof tmpl('Some text')() == 'string', 
+		'tmpl("Some text")() > string"' );
+	ok( typeof tmpl('TPL1') == 'function', 
+		'tmpl("TPL1") > function' );
+	ok( typeof tmpl('TPL1')() == 'string', 
+		'tmpl("TPL1")() > string"' );
+	
+	
+	
+});
+
+test( "Rules set change", function()
+{
+	ok( tmpl('TPL1')() == 'Hello world!', 
+		'tmpl("TPL1")() == "Hello world!"' );
+	ok( tmpl('TPL2', 'text/x-tmpl-jresig')({who:'you'}) == 'Hello you<?=who?>!', 
+		'tmpl("TPL2", "text/x-tmpl-jresig")({who:"you"}) == "Hello you<?=who?>!"' );
+	ok( tmpl('TPL2', 'text/x-php-like')({who:'you'}) == 'Hello <%=who%>you!', 
+		'tmpl("TPL2", "text/x-php-like")({who:"you"}) == "Hello <%=who%>you!"' );
+	
+	ok( tmpl('Hello world!')() == 'Hello world!', 
+		'tmpl("Hello world!")() == "Hello world!"' );
+	ok( tmpl('Hello <%=who%>!', 'text/x-tmpl-jresig')({who:'you'}) == 'Hello you!', 
+		'tmpl("Hello <%=who%>!", "text/x-tmpl-jresig")({who:"you"}) == "Hello you!"' );
+	ok( tmpl('Hello <?=who?>!', 'text/x-php-like')({who:'you'}) == 'Hello you!', 
+		'tmpl("Hello <?=who?>!", "text/x-php-like")({who:"you"}) == "Hello you!"' );
+	
+});
+
+test( "Template active", function(){expect(0);});
+test( "Template active appends", function(){expect(0);});
+
+test( "Template loading", function(){expect(0);});
+test( "Template active loaded", function(){expect(0);});
+
+
+
+function DOMContentLoaded()
+{
+	setTimeout(function()
+	{
+		document.getElementById('itemTpl').render({name: 'Lorem'});
+		document.getElementById('itemTpl').render({name: 'Ipsum'});
+		document.getElementById('itemTpl').repeat([
+			{name: 'Dolor'},
+			{name: 'Sit'},
+			{name: 'Amet'}
+		]);
+		
+		/*
+		//test xmlrenderer
+		xmlRenderer({aze:42, nest: {name:'aze', nb:422}, qsd:'qsd'})
+		
+		//test setting data on active tmpl
+		$('#jsonRenderer').data = {aze:42,qsd:'qsd'}
+		
+		// test nested call
+		{{data.type == 'item'}}
+			{{=itemTemplate(data)}}
+		{{/if}}
+		{{data.type == 'cat'}}
+			{{=categoryTemplate(data)}}
+		{{/if}}
+		
+		// test avec var ds tpl mais obj passé vide ou undefined
+		
+		// test data distant with CORS
+		tmpl.load('http://maps.118712.fr/poimanager/conf/plan', function(s){console.log(xmlRenderer(JSON.parse(s))); })
+		tmpl.load('http://maps.118712.fr/poimanager/conf/plan', function(s){$('#xmlRenderer').render(JSON.parse(s)); })
+		tmpl.load('http://maps.118712.fr/poimanager/conf/plan?jsonp=$("#xmlRenderer").render', $('#xmlRenderer'))
+		tmpl.load('http://maps.118712.fr/poimanager/conf/plan', $('#xmlRenderer'))
+		*/
+		
+	}, 1000);
+};
+
+</script>
+</body>
+</html>

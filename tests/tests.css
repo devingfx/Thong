@@ -1,0 +1,66 @@
+﻿#qunit {
+	width: 50%;
+	right: 10px;
+	position: absolute;
+	bottom: 10px;
+	box-shadow: 0 0 20px rgba(0,0,0,0.5);
+	border-radius: 6px;
+}
+.item { color: red; }
+#itemTpl { display: block; }
+
+
+body {
+	padding-top: 30px;
+}
+script[src$="menu.tpl"] {
+	display: block;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background: #2B81AF;
+	box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+	script[src$="menu.tpl"] menu {
+		cursor: pointer;
+		display: inline-block;
+		padding: 0 10px;
+		margin: 0;
+		height: 30px;
+		line-height: 30px;
+		font-family: sans-serif;
+		color: #fff;
+	}
+		script[src$="menu.tpl"] menu:hover {
+			background: #0D3349;
+		
+		}
+		script[src$="menu.tpl"] menu span {
+			text-shadow: 0 1px 0 black;
+		}
+		script[src$="menu.tpl"] menu ul {
+			background: #0D3349;
+			/*display: none;*/
+			opacity: 0;
+			position: fixed;
+			padding: 0;
+			margin: 0 -10px;
+			list-style: none;
+			min-width: 100px;
+			pointer-events: none;
+			-webkit-transform: translateY(-100%);
+			transition: all 0.3s ease-out;
+		}
+		script[src$="menu.tpl"] menu:hover ul {
+			opacity: 1;
+			-webkit-transform: translateY(0);
+			pointer-events: all;
+		}
+		script[src$="menu.tpl"] menu li {
+			padding: 0 10px;
+		}
+		script[src$="menu.tpl"] menu li:hover {
+			background: #2B81AF;
+		
+		}
