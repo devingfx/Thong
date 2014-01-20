@@ -24,6 +24,10 @@ THE SOFTWARE.
 /**
  * tmpl Plugin t.js like tag
  */
+
+// if(typeof require == 'function')
+	// tmpl = require('./tmpl').tmpl;
+
 if(typeof tmpl != 'undefined')
 {
 	// Add new rules

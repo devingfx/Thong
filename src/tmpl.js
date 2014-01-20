@@ -30,7 +30,7 @@ if(typeof tmpl == 'undefined')
 		var cache = {}, el,
 			fs = typeof require == 'function' ? require('fs') : null;
 
-		var tmpl = exports.tmpl = function (str, ruleSetName)
+		var tmpl = exports.tmpl = function tmpl(str, ruleSetName)
 		{
 			// Figure out if we're getting a template, or if we need to
 			// load the template - and be sure to cache the result.
@@ -45,7 +45,7 @@ if(typeof tmpl == 'undefined')
 																												// or create the function
 							(function(){
 								// Apply rules
-								var rules = tmpl.rules.defaults.concat(tmpl.rules[ruleSetName] || []);
+								var rules = tmpl.rules.defaults.concat(tmpl.rules[ruleSetName] || tmpl.rules[tmpl.defaultRules] || []);
 								for(var i = 0, rule; rule = rules[i++];)
 									str = str.replace(rule.s, rule.r);
 								// console.log('var o="";\nwith(data){\no+="' + str + '";\n}\nreturn o;');
@@ -73,6 +73,8 @@ if(typeof tmpl == 'undefined')
 			return str.replace(/\\"/g, '"');
 		};
 		
+		tmpl.defaultRules = null;
+		
 		tmpl.rules = {
 			defaults: [
 				{s/*earch*/: /\\/g, r/*eplace*/: '\\\\'},											// Escape '\' so that output string will still have char escaped (needed when processing js code string)
@@ -81,7 +83,7 @@ if(typeof tmpl == 'undefined')
 				{s: /[\r]/g, r: '\\r'}																// Escape '\n' same has above
 			]
 		};
-	})(window || exports, document);
+	})(typeof window != 'undefined' ? window : exports, typeof document != 'undefined' ? document : null);
 }
 
 

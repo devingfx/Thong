@@ -1,60 +1,75 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<title>QUnit Example</title>
-<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.12.0/qunit.min.css">
-<script src="../tmpl.js"></script>
-<script src="../tmpl.jresig.js"></script>
-<script src="../tmpl.php.js"></script>
-<script src="../tmpl.jstag.js"></script>
-<script src="../tmpl.tjs.js"></script>
-<script src="../tmpl.brackets.js"></script>
-<script src="../tmpl.active.js"></script>
-<script src="../tmpl.loader.js"></script>
+	<head>
+		<meta charset="utf-8">
+		<title>tmpl QUnit tests</title>
 
-<link rel="stylesheet" href="./tests.css">
-</head>
-<body onload="DOMContentLoaded">
-<div id="qunit"></div>
-<div id="qunit-fixture"></div>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.12.0/qunit.min.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.12.0/qunit.min.js"></script>
+		<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.12.0/qunit.min.css">
+		
+		<script src="../src/tmpl.js"></script>
+		<script src="../src/tmpl.scripts.js"></script>
+		<script src="../src/tmpl.active.js"></script>
+		<script src="../src/tmpl.loader.js"></script>
+		
+		<script src="../src/tmpl.rules.x-tmpl-jresig.js"></script>
+		<script src="../src/tmpl.rules.x-php-like.js"></script>
+		<script src="../src/tmpl.rules.x-tmpl-jstag.js"></script>
+		<script src="../src/tmpl.rules.x-tmpl-tjs.js"></script>
+		<script src="../src/tmpl.rules.x-tmpl-brackets.js"></script>
+		
+		<script>
+		(function()
+		{
+			var _div = function HTMLDivElement(){ return document.createElement('div') };
+			_div.prototype = HTMLDivElement.prototype;
+			
+			window.HTMLDivElement = _div;
+		})();
+		</script>
 
-
-<script id="TPL1" type="text/tmpl-with-id">Hello world!</script>
-<script id="TPL2" type="text/tmpl-with-id">Hello <%=who%><?=who?>!</script>
-
-
-
-<script id="itemTpl" type="text/x-tmpl-jresig" appends>
-	<div class="item"><%=name%></div>
-</script>
-
-
-<script type="text/x-tmpl-jstag">
-</script>
-
-
-<script id="xmlRenderer" type="text/x-tmpl-tjs">
-{{@data}}
-	{{typeof _val == 'object'}}
-		<{{=_key}}>{{=xmlRenderer(_val)}}</{{=_key}}>
-	{{:else}}
-		<{{=_key}}>{{=_val}}</{{=_key}}>
-	{{/if}}
-{{/@data}}
-</script>
-
-<!-- Loaded template + data binding + CSS based on filename: script[src$="menu.tpl"]{} -->
-<script src="./menu.tpl" data="menuData"></script>
-
-<div id="mouse" style="width:10px;height:10px;background:red;position:absolute;" top="{aze}px"></div>
+		<link rel="stylesheet" href="./tests.css">
+		
+	</head>
+	<body onload="DOMContentLoaded">
+		<div id="qunit"></div>
+		<div id="qunit-fixture"></div>
 
 
-<script id="itemRenderer" style="display:block" src="../item.tpl" data="{label: 'Item 1', click:'alert(\'Hello !\')'}"></script>
-<script id="itemRenderer2" style="display:block" src="../item.tpl" data="[{label: 'Item 1', click:''},{label: 'Item 2', click:''},{label: 'Item 3', click:''},{label: 'Item 4', click:''}]"></script>
+		<script id="TPL1" type="text/tmpl-with-id">Hello world!</script>
+		<script id="TPL2" type="text/tmpl-with-id">Hello <%=who%><?=who?>!</script>
 
-<script type="text/javascript">
+
+
+		<script id="itemTpl" type="text/x-tmpl-jresig" appends>
+			<div class="item"><%=name%></div>
+		</script>
+
+
+		<script type="text/x-tmpl-jstag">
+		</script>
+
+
+		<script id="xmlRenderer" type="text/x-tmpl-tjs">
+		{{@data}}
+			{{typeof _val == 'object'}}
+				<{{=_key}}>{{=xmlRenderer(_val)}}</{{=_key}}>
+			{{:else}}
+				<{{=_key}}>{{=_val}}</{{=_key}}>
+			{{/if}}
+		{{/@data}}
+		</script>
+
+		<!-- Loaded template + data binding + CSS based on filename: script[src$="menu.tpl"]{} -->
+		<script src="./menu.tpl" data="menuData"></script>
+
+		<div id="mouse" style="width:10px;height:10px;background:red;position:absolute;" top="{aze}px"></div>
+
+
+		<script id="itemRenderer" style="display:block" src="../item.tpl" data="{label: 'Item 1', click:'alert(\'Hello !\')'}"></script>
+		<script id="itemRenderer2" style="display:block" src="../item.tpl" data="[{label: 'Item 1', click:''},{label: 'Item 2', click:''},{label: 'Item 3', click:''},{label: 'Item 4', click:''}]"></script>
+
+		<script type="text/javascript">
 
 var menuData = [
 	{
@@ -153,6 +168,19 @@ test( "Rules set change", function()
 	
 });
 
+test( "Template scripts", function()
+{
+	ok( tmpl.Tmpl, 'Tmpl class exists');
+	var Tmpl = tmpl.Tmpl;
+	
+	// Tmpl()
+	// Tmpl(script)
+	// new Tmpl()
+	// new Tmpl(script)
+	
+	// Tmpl.call(script)
+	
+});
 test( "Template active", function(){expect(0);});
 test( "Template active appends", function(){expect(0);});
 
@@ -200,6 +228,6 @@ function DOMContentLoaded()
 	}, 1000);
 };
 
-</script>
-</body>
+		</script>
+	</body>
 </html>
