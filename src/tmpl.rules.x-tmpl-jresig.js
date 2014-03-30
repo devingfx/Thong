@@ -22,14 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+var tmpl;
+if(typeof tmpl == 'undefined') // If in nodejs
+	tmpl = require('./tmpl').tmpl;
+
 /**
  * tmpl j.Resig original <% %> like tag
  */
 if(typeof tmpl != 'undefined')
 {
+	var name = 'text/x-tmpl-jresig';
+	
 	// Add new rules
-	tmpl.rules['text/x-tmpl-jresig'] = [
+	var rules = tmpl.rules[name] = [
+		
 		{s: /<%=(.*?)%>/g, r: tmpl.unescapeCode('"+(typeof $1!="undefined"?$1:"")+"')},		// Templating part: replace vars <%=var%> 
 		{s: /<%(.*?)%>/g, r: tmpl.unescapeCode('";\n$1;\no+="')}							// Templating part: replace js statements <% while(...) { %> text <% } %> 
+	
 	];
+	
+	// If required
+	if(typeof exports != 'undefined')
+	{
+		exports.name = name;
+		exports.rules = rules;
+	}
 }

@@ -146,6 +146,8 @@ if(window && document) // avoid executing out of a browser
 					// });
 					// this._rendered = [];
 				}
+				if( getComputedStyle(this).display == 'none' )
+					this.style.display = 'block';
 				
 				// this.innerHTML += this.render(data[i], i);
 				var div = document.createElement('div'); // needed to parse HTML strings
@@ -163,7 +165,7 @@ if(window && document) // avoid executing out of a browser
 				appends = typeof appends != 'undefined' ? appends : (this.hasAttribute('appends') && (this.getAttribute('appends') == '' || this.getAttribute('appends') == 'true'));
 				
 				
-				// var div = document.createElement('div'); // needed to parse HTML strings
+				var div = document.createElement('div'); // needed to parse HTML strings
 				
 				this._eventAttribute('onBeforeRepeat', data);
 				

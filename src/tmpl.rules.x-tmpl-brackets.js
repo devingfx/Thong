@@ -21,13 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
+var tmpl;
+if(typeof tmpl == 'undefined') // If in nodejs
+	tmpl = require('./tmpl').tmpl;
+
 /**
  * tmpl Plugin brackets matching flex like ruleset
  */
 if(typeof tmpl != 'undefined')
 {
-	// Add new rules
-	// tmpl.nested('\\{','\\}')
+	var name = 'text/x-tmpl-brackets';
+	
+	/**
+	 * tmpl.nested('\\{','\\}')
+	 */
 	tmpl.nested = function(open, close, inCallback, outCallback)
 	{
 		var openSans = open.replace(/\\/, ''),
@@ -36,7 +44,7 @@ if(typeof tmpl != 'undefined')
 			s: new RegExp(open+'(.*)'+close, 'g'),
 			r:function(found, $1, index, all)
 			{
-				console.log(all);
+				// console.log(all);
 				var lvl = 1,
 					open = openSans,
 					close = closeSans,
@@ -56,10 +64,10 @@ if(typeof tmpl != 'undefined')
 					}
 					if([open,close].indexOf(s) == -1 || lvl > (was0?1:0))
 						parts[iRes] += s;
-					console.log(s, lvl, parts);
+					// console.log(s, lvl, parts);
 				}
 				
-				console.log(parts);
+				// console.log(parts);
 				parts = parts.map(function(part, i)
 									{
 										if(i%2 == 1)
@@ -69,15 +77,18 @@ if(typeof tmpl != 'undefined')
 										res = typeof res == 'string' ? res.replace(/\\"/g, '"') : res;
 										return '(' + res + ')';
 									});
-				console.log(parts);
+				// console.log(parts);
 				var s = '"+' + parts.join('+') + '+"';
 			
-				console.log(s);
+				// console.log(s);
 				return s;
 			}
 		}
 	};
-	tmpl.rules['text/x-tmpl-brackets'] = [
+	
+	// Add new rules
+	var rules = tmpl.rules[name] = [
+		
 		tmpl.nested('\\{', '\\}', function(part)
 		{
 			console.log("add listener on ", part);
@@ -117,16 +128,14 @@ if(typeof tmpl != 'undefined')
 			// }
 		// }
 	];
+	
+	// If required
+	if(typeof exports != 'undefined')
+	{
+		exports.name = name;
+		exports.rules = rules;
+	}
 }
-
-
-var rule = tmpl.nested('x','X', function(part)
-{
-	console.log("add listener on ", part);
-	return part;
-});
-var coucou = "Coucou", qsd = 42;
-console.log("aze xcoucouX qsd: xqsdX text".replace(rule.s, rule.r))
 
 
 
@@ -151,7 +160,7 @@ function cutOpenClose(str, open, close, inCallback, outCallback)
 			parts[iRes] += s;
 		// console.log(s, lvl, parts);
 	}
-	console.log(parts);
+	// console.log(parts);
 	parts = parts.map(function(part, i)
 						{
 							if(i%2 == 0)
@@ -159,7 +168,7 @@ function cutOpenClose(str, open, close, inCallback, outCallback)
 							
 							return (inCallback && inCallback(part)) || part;
 						});
-	console.log(parts);
+	// console.log(parts);
 	// var s = '"+' + parts.join('+') + '+"';
 
 	// console.log(s);
@@ -169,13 +178,13 @@ function cutOpenClose(str, open, close, inCallback, outCallback)
 function Binding(attr)
 {
 	var node = attr.ownerElement, prop = attr.nodeName, tpl = attr.nodeValue;
-	var code = cutOpenClose(tpl, '{', '}', function(part)
+	var code = cutOpenClose(tpl, '{', '}', function inCallback(part)
 	{
 		target = part;
 		console.log('add listener on', part);
 		return '('+part+')';
 	},
-	function(part)
+	function outCallback(part)
 	{
 		return '"'+part+'"';
 	}).join(' + ');

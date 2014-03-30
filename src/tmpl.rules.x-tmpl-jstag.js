@@ -21,13 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
+var tmpl;
+if(typeof tmpl == 'undefined') // If in nodejs
+	tmpl = require('./tmpl').tmpl;
+
 /**
  * tmpl Plugin <js tag>
  */
 if(typeof tmpl != 'undefined')
 {
+	var name = 'text/x-tmpl-jstag';
+	
 	// Add new rules
-	tmpl.rules['text/x-tmpl-jstag'] = [
+	var rules = tmpl.rules[name] = [
+		
 		// {s: /<script(.*?)<\/\sscript>/g, r: function(found){
 		// 	var id = tmpl._savedScripts.push(found);
 		// 	return '[script['+id+']]';
@@ -53,5 +61,13 @@ if(typeof tmpl != 'undefined')
 		// 	// console.log(found, $1, parseInt($1), tmpl._savedScripts, tmpl._savedScripts[parseInt($1)-1]);
 		// 	return tmpl._savedScripts[parseInt($1) - 1].replace();
 		// }}
+		
 	];
+	
+	// If required
+	if(typeof exports != 'undefined')
+	{
+		exports.name = name;
+		exports.rules = rules;
+	}
 }

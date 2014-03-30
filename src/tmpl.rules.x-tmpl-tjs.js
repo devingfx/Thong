@@ -21,18 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
+var tmpl;
+if(typeof tmpl == 'undefined') // If in nodejs
+	tmpl = require('./tmpl').tmpl;
+
 /**
  * tmpl Plugin t.js like tag
  */
-
-// if(typeof require == 'function')
-	// tmpl = require('./tmpl').tmpl;
-
 if(typeof tmpl != 'undefined')
 {
+	var name = 'text/x-tmpl-tjs';
+	
 	// Add new rules
-	tmpl.rules['text/x-tmpl-tjs'] = [
-		// Addon free javascript
+	var rules = tmpl.rules[name] = [
+		
+		// Addon free javascript {{{ ... }}}
 		{s: /\{\{\{(.*?)\}\}\}/g ,r: tmpl.unescapeCode('"; try{ $1 } catch(e){} o+="')},
 
 		// t.js template style (https://github.com/jasonmoo/t.js)
@@ -52,5 +56,13 @@ if(typeof tmpl != 'undefined')
 		{s: /\{\{\/(.*?)\}\}/g, r: '"; } } catch(e){} o+="'}, // End if block
 		{s: /\{\{:(.*?)\}\}/g, r: '"; }else{ o+="'}, // else block
 		{s: /\{\{(.*?)\}\}/g, r: tmpl.unescapeCode('"; try{ if($1) { o+="')} // If block
+	
 	];
+	
+	// If required
+	if(typeof exports != 'undefined')
+	{
+		exports.name = name;
+		exports.rules = rules;
+	}
 }

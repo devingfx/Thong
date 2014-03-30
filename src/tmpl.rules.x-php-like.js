@@ -21,14 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+var tmpl;
+if(typeof tmpl == 'undefined') // If in nodejs
+	tmpl = require('./tmpl').tmpl;
+
 /**
  * tmpl Plugin <? ?> php like syntax
  */
-if(typeof tmpl != 'undefined')
+if(typeof tmpl != 'undefined') // Should be in window otherwise
 {
+	var name = 'text/x-php-like';
+	
 	// Add new rules
-	tmpl.rules['text/x-php-like'] = [
+	var rules = tmpl.rules[name] = [
+	
 		{s: /<\?=(.*?)\?>/g, r: tmpl.unescapeCode('"+(typeof $1!="undefined"?$1:"")+"')},	// Templating part: replace vars <?=var?> 
 		{s: /<\?(.*?)\?>/g, r: tmpl.unescapeCode('";\n$1;\no+="')}							// Templating part: replace js statements <? while(...) { ?> text <? } ?> 
+	
 	];
+	
+	// If required
+	if(typeof exports != 'undefined')
+	{
+		exports.name = name;
+		exports.rules = rules;
+	}
 }

@@ -26,7 +26,9 @@ THE SOFTWARE.
 
 if(typeof tmpl == 'undefined')
 {
-	(function(exports, document){
+	(function(exports, document)
+	{
+		
 		var cache = {}, el,
 			fs = typeof require == 'function' ? require('fs') : null;
 
@@ -44,8 +46,9 @@ if(typeof tmpl == 'undefined')
 							:
 																												// or create the function
 							(function(){
-								// Apply rules
+								// Get the ruleSet needed and/or the defaults
 								var rules = tmpl.rules.defaults.concat(tmpl.rules[ruleSetName] || tmpl.rules[tmpl.defaultRules] || []);
+								// Apply rules
 								for(var i = 0, rule; rule = rules[i++];)
 									str = str.replace(rule.s, rule.r);
 								// console.log('var o="";\nwith(data){\no+="' + str + '";\n}\nreturn o;');
@@ -54,7 +57,6 @@ if(typeof tmpl == 'undefined')
 							})()
 					)
 
-			// Provide some basic currying to the user
 			return fn;
 		};
 		
@@ -83,7 +85,10 @@ if(typeof tmpl == 'undefined')
 				{s: /[\r]/g, r: '\\r'}																// Escape '\n' same has above
 			]
 		};
-	})(typeof window != 'undefined' ? window : exports, typeof document != 'undefined' ? document : null);
+	})(
+		typeof window != 'undefined' ? window : exports,
+		typeof document != 'undefined' ? document : null
+	);
 }
 
 
