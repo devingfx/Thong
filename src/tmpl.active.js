@@ -64,7 +64,7 @@ if(window && document) // avoid executing out of a browser
 		ActiveTmpl.prototype = {
 			initialize: function()
 			{
-				console.log('ActiveTmpl('+this+' ID:'+this.id+');');
+				//console.log('ActiveTmpl('+this+' ID:'+this.id+');');
 				this._rendered = [];
 				this._tpl = this.innerHTML;
 				this._render = tmpl(this.innerHTML, this.type);
@@ -95,15 +95,7 @@ if(window && document) // avoid executing out of a browser
 						this.data = typeof v == 'string' ? eval('(' + v + ')') : v;
 					_superSetAtt.apply(this, arguments);
 				}
-				// Object.defineProperty(this, 'data', {
-					// set: function(v)
-					// {
-						// try{
-							// this.innerHTML = this.render.call(this, typeof v == 'string' ? eval(v) : v);
-						// }catch(e){}
-					// }
-				// });
-		
+				
 				if(this.getAttribute('data'))
 					this.setAttribute('data', this.getAttribute('data'));
 			},
@@ -118,70 +110,26 @@ if(window && document) // avoid executing out of a browser
 				}
 				this.dispatchEvent && this.dispatchEvent(event);
 			},
-			// appendChild: function(child)
-			// {
-				// If some node are already rendered, take last, this otherwise
-				// var prec = this._rendered.length > 0 ? this._rendered[this._rendered.length - 1] : this;
-				
-				// this._rendered.push(child);
-				
-				// if(prec.nextSibling) // if prec is not the last node
-					// this.parentNode.insertBefore(child, prec.nextSibling); // insert after prec
-				// else
-					// this.parentNode.appendChild(child); // otherwise append
-			// },
 			render: function(data, appends)
 			{
 				data = data || this.data;
 				appends = typeof appends != 'undefined' ? appends : (this.hasAttribute('appends') && (this.getAttribute('appends') == '' || this.getAttribute('appends') == 'true'));
 				
+				var div = document.createElement('div'); // needed to parse HTML strings
+				
 				this._eventAttribute('onBeforeRender', data);
 				
 				if(!appends)
-				{
 					this.innerHTML = "";
-					// this._rendered.forEach(function(item)
-					// {
-						// item.parentNode.removeChild(item);
-					// });
-					// this._rendered = [];
-				}
+				
 				if( getComputedStyle(this).display == 'none' )
 					this.style.display = 'block';
 				
-				// this.innerHTML += this.render(data[i], i);
-				var div = document.createElement('div'); // needed to parse HTML strings
-				div.innerHTML = this._render(data);
-				// The template can render several nodes
-				var childs = Array.prototype.slice.call(div.childNodes);
-				for(var ic = 0, child; child = childs[ic++];)
-					this.appendChild(child);
-				
-				this._eventAttribute('onRender', data);
-			},
-			repeat: function(data, appends)
-			{
-				data = data || this.data;
-				appends = typeof appends != 'undefined' ? appends : (this.hasAttribute('appends') && (this.getAttribute('appends') == '' || this.getAttribute('appends') == 'true'));
-				
-				
-				var div = document.createElement('div'); // needed to parse HTML strings
-				
-				this._eventAttribute('onBeforeRepeat', data);
-				
-				// if(!(this.hasAttribute('appends') && (this.getAttribute('appends') == '' || this.getAttribute('appends') == 'true')))
-				// {
-					// this.innerHTML = "";
-					// this._rendered.forEach(function(item){item.parentNode.removeChild(item);})
-					// this._rendered = [];
-				// }
-				
-				if(typeof data.length != 'undefined')// Array like
+				if(typeof data.length != 'undefined') // Array like
 				{
 					for(var index = 0, item; item = data[index]; index++)
 					{
-						// this.innerHTML += this.render(data[i], i);
-						div.innerHTML = this.render(data[index]);
+						div.innerHTML = this._render(data[index]);
 						// The template can render several nodes
 						var childs = Array.prototype.slice.call(div.childNodes);
 						for(var ic = 0, child; child = childs[ic++];)
@@ -192,23 +140,18 @@ if(window && document) // avoid executing out of a browser
 				}
 				else
 				{
-					for(var index in data)
-					{
-						div.innerHTML = this._render(data[index]);
-						// The template can render several nodes
-						for(var ic = 0, child; child = div.childNodes[ic++];)
-							this.appendChild(child);
-						
-						this._eventAttribute('onRepeat', data, index);
-					}
+					div.innerHTML = this._render(data);
+					// The template can render several nodes
+					var childs = Array.prototype.slice.call(div.childNodes);
+					for(var ic = 0, child; child = childs[ic++];)
+						this.appendChild(child);
 				}
 				
-				this._eventAttribute('onRepeatEnd', data, index);
+				this._eventAttribute('onRenderEnd', data, index);
 				
 				return this;
 			}
 		};
-		
 		
 		window.activateTmpls = function activateTmpls(root)
 		{
@@ -218,14 +161,12 @@ if(window && document) // avoid executing out of a browser
 			else // Get the script tags
 				ss = (root || document).getElementsByTagName('script');
 			//console.log(ss.length)
-			// var	s = ss[ss.length-1], dataAttr = s.getAttribute('data');
 			for(var i = 0, script; script = ss[i++];){
-				console.log(script.type);
+				//console.log(script.type);
 			
 				if(typeof script.render != 'function' && tmpl.rules.hasOwnProperty(script.type) && script.innerHTML != '')
 				{
-					// console.log("azzz"+(typeof script.extendWith));
-					console.log(script.id, script);
+					// console.log(script.id, script);
 					extendWith(script, ActiveTmpl);
 					script.initialize();
 					
@@ -239,13 +180,5 @@ if(window && document) // avoid executing out of a browser
 		if('attachEvent' in document)
 			document.attachEvent('onDOMContentLoaded',  function(){activateTmpls();});
 		
-		// $(function()
-		// {
-			// console.log('ok');
-			// activeTmpls();
-		// });
-		
-		
 	})(window, document);
-
 }
