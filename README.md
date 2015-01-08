@@ -1,3 +1,4 @@
+
 Simple JavaScript Templating for both nodejs and browsers - Thomas Di Grégorio
 https://bitbucket.org/tdigregorio/tmpl/src - derived from
 JavaScript micro templating - Jhon Resig - MIT Licensed
@@ -14,6 +15,7 @@ Second the templating rules have been exported into a rules array to let
 developpers create their own rules.
 
 
+
 ## Install
 
 To use tmpl you have to load tmpl itself, plus some template rules. Some rules 
@@ -21,11 +23,14 @@ sets are bundled in the tmpl repo to help people understanding the rules syntax.
 
 Pre made rules sets are:
 
-- jstag (src/tmpl.x-tmpl-jstag.js) : Rules looking like `Hello <:varName/>`
+- jstag (src/tmpl.x-tmpl-jstag.js) : Rules looking like 
+  `Hello <:varName/>`
 - jresig (src/tmpl.x-tmpl-jresig.js) : The original rules from John Resig's blog post, looking like 
-                                       `Hello <%=varName%>`
-- php-like (src/tmpl.x-php-like.js) : Rules looking like php's : `Hello <?=varName?>`
-- tjs (src/tmpl.x-tmpl-tjs.js) : Rules looking like tjs, looks like `Hello {{=varName}}`
+  `Hello <%=varName%>`
+- php-like (src/tmpl.x-php-like.js) : Rules looking like php's : 
+  `Hello <?=varName?>`
+- tjs (src/tmpl.x-tmpl-tjs.js) : Rules looking like tjs, looks like 
+  `Hello {{=varName}}`
 
 Or you create your ow rules (see Add a templating rule section).
 
@@ -36,14 +41,7 @@ Or you create your ow rules (see Add a templating rule section).
 You can load several rules sets if needed, the rules will be store separately so
 you'll be able to use the ones needed for each templates you wrote.
 
-## Declare one rules set as default one
 
-You can say to tmpl to use one rules set as the default one, to avoid giving the 
-name each time you create a template function.
-
-	tmpl.defaultRules = 'x-tmpl-jstag';
-
-This is especially usefull if you loaded only one rules set.
 
 ## Usage
 
@@ -106,6 +104,15 @@ function:
 	myDiv.innerHTML = myArticlesDatas.map( myArticleTpl ).join('');  // Notice Array.map usage here
 
 
+
+## Declare one rules set as default one
+
+You can say to tmpl to use one rules set as the default one, to avoid giving the 
+name each time you create a template function.
+
+	tmpl.defaultRules = 'x-tmpl-jstag';
+
+This is especially usefull if you loaded only one rules set.
 
 
 
