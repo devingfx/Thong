@@ -32,7 +32,7 @@ Pre made rules sets are:
 - tjs (src/tmpl.x-tmpl-tjs.js) : Rules looking like tjs, looks like 
   `Hello {{=varName}}`
 
-Or you create your ow rules (see Add a templating rule section).
+Or you create your ow rules (see [how to create templating rules](#create)).
 
 	<script src="js/tmpl.js"></script>
 	<script src="js/tmpl.x-tmpl-jresig.js"></script>
@@ -61,15 +61,16 @@ resulting template function is needed only 1 time:
 
 	myDiv.innerHTML = tmpl( "Some text and <:thing/>!" )( { thing: 'that\'s it' } );
 
-(notice the lack of rules sets name as a default one has been set)
+(notice the lack of rules sets name as a default one has been set see [default rules set](#default))
 
 This syntax is not optimized if the template have to be resolved several times 
-(like in a for loop), because the parsing of rules and template function 
+(like in a for loop), because the parsing of rules and tpl function 
 creation are executed each time. You better have to save the templating function
 in a variable (like a global one) and use it against your data each time needed.
 
-Tips: 
-- You can write a multiline string in javascript using the backslash (\\) hack:
+>Tips:
+>
+>- You can write a multiline string in javascript using the backslash (\\) hack:
 
 	var myArticleTpl = tmpl( 
 							'<article class="catalog-item cat-<:category.id/>">\
@@ -77,10 +78,10 @@ Tips:
 							</article>'
 							);
 
-Using this syntax is correct in javascript cause you escaped the newline char so
-the javascript virtual machine wont save this unknown char in the string. The 
-caveat is that the newline chars are lost. If you need to the newline chars to 
-be present in the final string you'll have explicitly write it:
+>Using this syntax is correct in javascript cause you escaped the newline char so
+>the javascript virtual machine wont save this unknown char in the string. The 
+>caveat is that the newline chars are lost. If you need to the newline chars to 
+>be present in the final string you'll have explicitly write it:
 
 	var myArticleTpl = tmpl( 
 							'<article class="catalog-item cat-<:category.id/>">\n\
@@ -88,8 +89,7 @@ be present in the final string you'll have explicitly write it:
 							</article>'
 							);
 
-- You can access global objects in the template tokens has you will in a normal 
-function:
+>- You can access global objects in the template tokens has you will in a normal function:
 
 	window.admin = true;
 	var myArticleTpl = tmpl( 
@@ -101,11 +101,38 @@ function:
 							</article>'
 							);
 	
-	myDiv.innerHTML = myArticlesDatas.map( myArticleTpl ).join('');  // Notice Array.map usage here
+	for( var i = 0, item; item = myDatas[i++]; )
+		myBlog.innerHTML = myArticleTpl( item );
+			
+>
+>
+>
+>- Vanilla javascript Arrays work like a charm with tpl functions! As tpl functions take one object 
+> as argument,`Array.map` or `Array.forEach` have the good signature for their callback:
+
+	myBlog.innerHTML = myArticlesDatas.map( myArticleTpl ).join('');  // Notice Array.join usage
+>
+>
+>
+>- Embed template in your <html> markup within <script> tags! Every <script> with a type attribute different of "text/javascript" wont be executed. Use this feature to embbed your template with the type corresponding to the rules set to use:
+
+	<script id="myTaxonomyTpl" type="text/x-php-like">
+		<span class="taxonomy-<?= tax ?>"><?= tax ?></span>
+		<? if( admin ) { ?>
+			<button>Edit</button>
+		<? } ?>
+	</script>
+>
+>
+>
+> Then select the <script> tag's innerHTML to get your template as a string:
+
+	myTaxonomyTpl = tmpl( $('#myTaxonomyTpl').html(), $('#myTaxonomyTpl').attr('type') );
 
 
 
 ## Declare one rules set as default one
+<a name="default"></a>
 
 You can say to tmpl to use one rules set as the default one, to avoid giving the 
 name each time you create a template function.
@@ -123,7 +150,8 @@ This is especially usefull if you loaded only one rules set.
 
 
 
-## Add a templating rule
+<a name="create"></a>
+## Create a templating rule
 
 Simply add to the `tmpl.rules` Array a hash with 's' (search) and 'r' (replace) props :
 
