@@ -1,24 +1,118 @@
-Simple JavaScript Templating for both nodejs and browsers - Thomas Di Grégorio - https://bitbucket.org/tdigregorio/tmpl/src - derived from
-Simple JavaScript Templating - John Resig - http://ejohn.org/ - MIT Licensed
+Simple JavaScript Templating for both nodejs and browsers - Thomas Di Grégorio
+https://bitbucket.org/tdigregorio/tmpl/src - derived from
+JavaScript micro templating - Jhon Resig - MIT Licensed
+http://ejohn.org/blog/javascript-micro-templating/
+
 
 # tmpl - Simple templating
 
-tmpl is a portage and optimization of the great Simple JavaScript Templating from Jhon Resig.
-First the code is made to be loaded both in browser via a <script> tag and in nodejs via require.
-Second the templating rules have been exported into a rules array to let developpers create their own rules
+tmpl is a portage and optimization of the great JavaScript micro templating from
+Jhon Resig (http://ejohn.org/blog/javascript-micro-templating/).
+First the code is made to be loaded both in browser via a <script> tag or in 
+nodejs via require.
+Second the templating rules have been exported into a rules array to let 
+developpers create their own rules.
+
+
+## Install
+
+To use tmpl you have to load tmpl itself, plus some template rules. Some rules 
+sets are bundled in the tmpl repo to help people understanding the rules syntax.
+
+Pre made rules sets are:
+
+- jstag (src/tmpl.x-tmpl-jstag.js) : Rules looking like `Hello <:varName/>`
+- jresig (src/tmpl.x-tmpl-jresig.js) : The original rUles from John Resig's blog post, looking like `Hello <%varName%>`
+- php-like (src/tmpl.x-php-like.js) : Rules looking like php's : `Hello <?=varName?>`
+- tjs (src/tmpl.x-tmpl-tjs.js) : Rules looking like tjs, looks like `Hello {{=varName}}`
+
+Or you create your ow rules (see Add a templating rule section).
+
+	<script src="js/tmpl.js"></script>
+	<script src="js/tmpl.x-tmpl-jresig.js"></script>
+	<script src="js/tmpl.x-tmpl-jstag.js"></script>
+
+You can load several rules sets if needed, the rules will be store separately so
+you'll be able to use the ones needed for each templates you wrote.
+
+## Declare one rules set as default one
+
+You can say to tmpl to use one rules set as the default one, to avoid giving the 
+name each time you create a template function.
+
+	tmpl.defaultRules = 'x-tmpl-jstag';
+
+This is especially usefull if you loaded only one rules set.
 
 ## Usage
 
-Use tmpl to generate a templating function that take an Object as argument:
+Use the tmpl function to generate a templating function. A templating function 
+will take an Object as argument and return a string. You have to specify wich 
+rules set to use for this template string:
 
-	var greet = tmpl("Some text and <%=thing%>!");
-	myDiv.innerHTML = greet({thing: 'that\'s it'});
+	var greet = tmpl( "Some text and <%=thing%>!", 'x-tmpl-jresig' );
 
-The references in template tokens resolves to the properties of Object passed .
+The references in template tokens resolves to the properties of the Object 
+given as argument to the templating function.
 
-You can also pass the Object directly to tmpl function as 2nd argument:
+	myDiv.innerText = greet( { thing: 'that\'s it' } );
 
-	myDiv.innerHTML = tmpl("Some text and <%=thing%>!", {thing: 'that\'s it'});
+You can also chain the calls to tmpl and the templating function directly if the
+resulting template function is needed only 1 time:
+
+	myDiv.innerHTML = tmpl( "Some text and <:thing/>!" )( { thing: 'that\'s it' } );
+
+(notice the lack of rules sets name as a default one has been set)
+
+This syntax is not optimized if the template have to be resolved several times 
+(like in a for loop), because the parsing of rules and template function 
+creation are executed each time. You better have to save the templating function
+in a variable (like a global one) and use it against your data each time needed.
+
+Tips: 
+- You can write a multiline string in javascript using the backslash (\\) hack:
+
+	var myArticleTpl = tmpl( 
+							'<article class="catalog-item cat-<:category.id/>">\
+								<span class="title"><:title/></span>\
+							</article>'
+							);
+
+Using this syntax is correct in javascript cause you escaped the newline char so
+the javascript virtual machine wont save this unknown char in the string. The 
+caveat is that the newline chars are lost. If you need to the newline chars to 
+be present in the final string you'll have explicitly write it:
+
+	var myArticleTpl = tmpl( 
+							'<article class="catalog-item cat-<:category.id/>">\n\
+								<span class="title"><:title/></span>\n\
+							</article>'
+							);
+
+- You can access global objects in the template tokens has you will in a normal 
+function:
+
+	window.admin = true;
+	var myArticleTpl = tmpl( 
+							'<article class="catalog-item cat-<:category.id/>">\
+								<span class="title"><:title/></span>\
+								<admin?>\
+									<button class="editor">Edit</button>\
+								</if>\
+							</article>'
+							);
+	
+	myDiv.innerHTML = myArticlesDatas.map( myArticleTpl ).join('');  // Notice Array.map usage here
+
+
+
+
+
+
+
+
+
+
 
 
 ## Add a templating rule
