@@ -22,7 +22,8 @@ sets are bundled in the tmpl repo to help people understanding the rules syntax.
 Pre made rules sets are:
 
 - jstag (src/tmpl.x-tmpl-jstag.js) : Rules looking like `Hello <:varName/>`
-- jresig (src/tmpl.x-tmpl-jresig.js) : The original rUles from John Resig's blog post, looking like `Hello <%varName%>`
+- jresig (src/tmpl.x-tmpl-jresig.js) : The original rules from John Resig's blog post, looking like 
+                                       `Hello <%=varName%>`
 - php-like (src/tmpl.x-php-like.js) : Rules looking like php's : `Hello <?=varName?>`
 - tjs (src/tmpl.x-tmpl-tjs.js) : Rules looking like tjs, looks like `Hello {{=varName}}`
 
