@@ -158,59 +158,101 @@ Simply add to the `tmpl.rules` Array a hash with 's' (search) and 'r' (replace) 
 	var rule = {s:<RegExp>, r:<string or function>};
 	tmpl.rules.push(rule);
 
-A rule consist in a RegExp that will be used in a String.replace to replace by the replace value.
+A rule consist in a RegExp that will be used in a **String.replace** to replace by the replace value.
 The replace string will be part of the final function code generated, so you are in a middle of 
-a javacript string declaration named 'o' ex : `var o = "<result of template here>"; return o;`
-So imagine your template is `"Doctor @who@ ?"` the function code without any replacement
-will be: `var o = "Doctor @who@ !"; return o;`
-Now we want the code to access some variable after our rule is replaced.
-ex: the js code will be: `var o = "Doctor " + (who) + " !"; return o;`
+a javacript string declaration named 'o' (as output) ex : 
 
-Exemple: Find a var tag of form 'text @varname@ text' and replace by the value.
+	var o = "<result of template here>"; return o;
+
+So imagine your template is `"Doctor @who@ ?"` the function code without any rules
+will be:
+
+	var o = "Doctor @who@ !"; return o;
+
+Now we want to insert the value of a the `who` variable, the final js code should be:
+
+	var o = "Doctor " + (who) + " !"; return o;
+
+**Exemple**: Find a var token of form `text @varname@ text` and replace by the value of the given variable name.
 
 	{
 		s: /@(.*?)@/g , 	// Search char '@' then capture everything until another '@' (don't forget the global modifier /./g)
 		r: '" + ($1) + "'	// Now after our rule is replaced the js code will be: var o = "Doctor " + (who) + " !"; return o;
 	}
 
-A more complex ex now! 
-Imagine a conditional block of form 'lorem @IF::expression@ ipsum @STOP::IF dolor sit amet' ,
+
+
+
+## What is the rest of the tpl function declaration ?
+
+The astuce for passing an object as first argument, and don't having to name the argument for accessing properties (aka : `var o = "Doctor " + (data.who) + " !"; return o;`) resides in using the
+javascript `with( ... )` statement:
+
+	function( data )
+	{
+		with( data )
+		{
+			var o = "<result of template here>";
+			return o;
+		}
+	}
+
+
+
+
+## A more complex ex now! 
+
+Imagine a conditional block of form `lorem @IF::expression@ ipsum @STOP::IF dolor sit amet` ,
 we need 2 rules: 1 for opening tag and one for the closing one.
 
-Here the code without replacement will be: `var o = "lorem @IF::expression@ ipsum @STOP::IF dolor sit amet"; return o;`
+Here the code without any rule will be: 
 
-* The openning one:
+	var o = "lorem @IF::expression@ ipsum @STOP::IF dolor sit amet"; return o;
+
+The **openning token** rule will have to capture the `expression` and replace by a js `if( ... )` statement:
 
 	{	
 		s: /@IF::(.*?)@/g , 		// Search chars '@IF::' then capture everything until another '@'
 		r: '"; if( $1 ) { o+="'		// Replace by a javascript if
 	}
 
-and with this replacement: `var o = "lorem "; if(expression) { o+=" ipsum @STOP::IF dolor sit amet"; return o;`
-the code is buggy cause we need,
+and with this rule replaced the js code will be: 
 
-* the close tag rule:
+	var o = "lorem "; if(expression) { o+=" ipsum @STOP::IF dolor sit amet"; return o;
+
+this code is buggy cause we need the **close token** rule:
 
 	{
 		s: /@STOP::IF/g , 			// Search chars '@STOP::IF'
-		r: '"; } o+="'				// 
+		r: '"; } o+="'				// close the if statement
 	}
 
-Here the final code is: `var o = "lorem "; if(expression) { o+=" ipsum "; } o+=" dolor sit amet"; return o;`
+Here the final code is: 
+
+	var o = "lorem "; if(expression) { o+=" ipsum "; } o+=" dolor sit amet"; return o;`
+
+
+
 
 ## Unescaping:
 
 A common use case is to first create a rules to escape " double quote char to be able to paste a quote in the resulting code
-otherwise the quote should close the string declaration in js code: 
+otherwise the quote should close the string declaration in js code. Imagine a simple HTML template string as `<div class="item">foo</div>` would breaks the parsing:
 
-	'<div class="item">foo</div>'   >>   var o = "<div class="item">foo</div>"; return o;
+	var o = "<div class="item">foo</div>"; return o;
 
-Here the quotes surrounding "item" breaks the js string declaration
-So after escape no more problems : 
+Here the quotes surrounding "item" breaks the js string declaration.
+A simple rule to escape all quotes would be:
+
+	{	s: /"/g ,	r: '\\"'	}			// Replace " by \"
+
+So after escape no more problems with html attributes: 
 
 	var o = "<div class=\"item\">foo</div>"; return o;
 
-The problem is that escaping all the template's quotes will also escape the one in js parts that rules will use ex:
+> Tip: this rule is the `tmpl.rules.default` rules set added every time before custom rules.
+
+The problem is that escaping all the template's quotes will also escape the one in the parts you want to use as js statements. Ex with the form `<div class="item">{{if bar == "foo"}}foo{{/if}}</div>`:
 
 	{	s: /"/g ,	r: '\\"'	},			// Escape all quotes (")
 	{
@@ -218,17 +260,20 @@ The problem is that escaping all the template's quotes will also escape the one 
 		r: '"; if( $1 ) { o+="'				// Replace by if statement with 1st capture
 	}
 	
-	'<div class="item">{{if bar == "foo"}}foo{{/if}}</div>'
-	done:
+The broken code will be:
+
 	var o = "<div class=\"item\">"; if( bar == \"foo\" ) { o+="foo"; } o+="</div>"; return o;
 
-Here our js code will break because of escaped quotes surrounding foo: if( bar == \"foo\" )
-You should instead use here a function replacement to first unescape the quotes in captured string before concatenate
+Here our js code will break because of escaped quotes surrounding foo: `if( bar == \"foo\" )`
+You should instead use here a replacement function to first unescape the quotes in captured string before concatenate
 it to the final js code like:
 
 	{
-		s: /\{\{if(.*?)\}\}/g , 					// Search chars '{{if' then capture everything until '}}' are found
-		r: function(found, $1, $2, ...)				// Normal String.replace signature: function(<part of string match all rexexp> , <1st capture> , <2nd capture>, etc ...)
+		// Search chars '{{if' then capture everything until '}}' are found
+		s: /\{\{if(.*?)\}\}/g ,
+		
+		// Normal String.replace signature: function(<part of string match all rexexp> , <1st capture> , <2nd capture>, etc ...)
+		r: function(found, $1, $2, ...)
 		{
 			var code = $1.replace(/\\"/g, '"');		// Replace '\"' by '"'
 			return '"; if( ' + code + ' ) { o+="';	// Return the good js code
