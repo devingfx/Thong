@@ -9,7 +9,7 @@ http://ejohn.org/blog/javascript-micro-templating/
 
 tmpl is a portage and optimization of the great JavaScript micro templating from
 Jhon Resig (http://ejohn.org/blog/javascript-micro-templating/).
-First the code is made to be loaded both in browser via a <script> tag or in 
+First the code is made to be loaded both in browser via a `<script>` tag or in 
 nodejs via require.
 Second the templating rules have been exported into a rules array to let 
 developpers create their own rules.
@@ -114,7 +114,7 @@ in a variable (like a global one) and use it against your data each time needed.
 >
 >
 >
->- Embed template in your <html> markup within <script> tags! Every <script> with a type attribute different of "text/javascript" wont be executed. Use this feature to embbed your template with the type corresponding to the rules set to use:
+>- Embed template in your HTML markup within a `<script>` tags! Every `<script>` with a type attribute different of `"text/javascript"` wont be executed. Use this feature to embbed your template with the type corresponding to the rules set to use:
 
 	<script id="myTaxonomyTpl" type="text/x-php-like">
 		<span class="taxonomy-<?= tax ?>"><?= tax ?></span>
@@ -125,7 +125,7 @@ in a variable (like a global one) and use it against your data each time needed.
 >
 >
 >
-> Then select the <script> tag's innerHTML to get your template as a string:
+> Then select the `<script>` tag's innerHTML to get your template as a string:
 
 	myTaxonomyTpl = tmpl( $('#myTaxonomyTpl').html(), $('#myTaxonomyTpl').attr('type') );
 
